@@ -243,7 +243,7 @@ private:
 std::vector<std::vector<double > >  calc_shot(
                const std::vector<std::vector<double> >& vertices,
                const std::vector<std::vector<int> >& faces,
-               const std::vector<int>& targets,
+               const std::vector<std::vector<double> >& targets,
                double radius,
                double localRFradius,
                int minNeighbors,

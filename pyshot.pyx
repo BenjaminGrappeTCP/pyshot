@@ -11,7 +11,7 @@ cdef extern from "include/shot_descriptor.h":
     vector[vector[double]] calc_shot(
                    const vector[vector[double]] vertices,
                    const vector[vector[int]] faces,
-                   const vector[int] faces,
+                   const vector[vector[double]] targets,
                    double radius,
                    double local_rf_radius,
                    int min_neighbors,
@@ -24,7 +24,7 @@ cdef extern from "include/shot_descriptor.h":
 cpdef get_descriptors(
         np.ndarray[double, ndim=2] vertices,
         np.ndarray[long, ndim=2] faces,
-        np.ndarray[long, ndim=1] targets,
+        np.ndarray[double, ndim=2] targets,
         double radius,
         double local_rf_radius,
         int min_neighbors = 3,
@@ -42,8 +42,8 @@ cpdef get_descriptors(
       Array of vertex locations.
     faces : (m, 3)  int
       Array of triangular faces.
-    targets : (m, 3)  int
-      Array of indexes where to compute histograms.
+    targets : (t, 3) float 
+      Points where to compute histograms.
     radius: float
       Radius for querying neighbours.
     local_rf_radius: float

@@ -431,7 +431,7 @@ const {
 std::vector<std::vector<double > > calc_shot(
                const std::vector<std::vector<double> >& vertices,
                const std::vector<std::vector<int> >& faces,
-               const std::vector<int>& targets,
+               const std::vector<std::vector<double> >& targets,
                double radius,
                double localRFradius,
                int minNeighbors,
@@ -458,6 +458,7 @@ std::vector<std::vector<double > > calc_shot(
   }
 
   mesh.calc_normals();
+  mesh.update_kd_tree();
 
   unibo::SHOTComputer computer(radius,
                                localRFradius,
@@ -470,11 +471,21 @@ std::vector<std::vector<double > > calc_shot(
   const size_t lenDescriptor = computer.getDescriptorLength();
   std::vector<std::vector<double > > descriptors(nt, std::vector<double>(lenDescriptor));
 
-
-  for (size_t iTar=0; iTar<nt; ++iTar) {
+  // Now that the KDTree is updated, append a data point to hold the location
+  // of interest.
+  // Then looping over the target points: 
+  //  - copy its coordinates into that last point, 
+  //  - always ask the computation to be done with the last index!
+  // Clearly a hack, but it seems to work...
+  mesh_t::vertex_data vert;
+  mesh.vertices.push_back(vert);
+  for (int iTar=0; iTar<nt; ++iTar) {
     std::cout << "[PROGRESSION] " << iTar << " / " << nt << std::endl;
+    mesh.vertices[nv].p.x = targets[iTar][0];
+    mesh.vertices[nv].p.y = targets[iTar][1];
+    mesh.vertices[nv].p.z = targets[iTar][2];
     unibo::SHOTDescriptor descriptor;
-    computer.describe(mesh, targets[iTar], descriptor);
+    computer.describe(mesh, nv, descriptor);
     for (size_t j=0; j < lenDescriptor; j++) {
         descriptors[iTar][j] = (double) descriptor(j);
     }
