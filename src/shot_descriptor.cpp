@@ -162,7 +162,7 @@ const {
   vector<int> neighs;
   vector<double> dists;
 
-  const vec3d<double> &centralPoint = data.get_vertex(feat_index);
+  const vec3d<double> centralPoint = data.get_vertex(feat_index);
 
   // Getting the local reference frame (ref_X, ref_Y, ref_Z)
   // and neighbours and their squared distances
@@ -431,6 +431,7 @@ const {
 std::vector<std::vector<double > > calc_shot(
                const std::vector<std::vector<double> >& vertices,
                const std::vector<std::vector<int> >& faces,
+               const std::vector<int>& targets,
                double radius,
                double localRFradius,
                int minNeighbors,
@@ -443,6 +444,7 @@ std::vector<std::vector<double > > calc_shot(
   mesh_t mesh;
   int nv = vertices.size();
   int nf = faces.size();
+  int nt = targets.size();
 
   std::vector<vec3d<double>> V(nv);
 
@@ -466,13 +468,15 @@ std::vector<std::vector<double > > calc_shot(
                                useNormalization);
 
   const size_t lenDescriptor = computer.getDescriptorLength();
-  std::vector<std::vector<double > > descriptors(nv, std::vector<double>(lenDescriptor));
+  std::vector<std::vector<double > > descriptors(nt, std::vector<double>(lenDescriptor));
 
-  for (int i = 0; i < nv; i++) {
+
+  for (size_t iTar=0; iTar<nt; ++iTar) {
+    std::cout << "[PROGRESSION] " << iTar << " / " << nt << std::endl;
     unibo::SHOTDescriptor descriptor;
-    computer.describe(mesh, i, descriptor);
+    computer.describe(mesh, targets[iTar], descriptor);
     for (size_t j=0; j < lenDescriptor; j++) {
-        descriptors[i][j] = (double) descriptor(j);
+        descriptors[iTar][j] = (double) descriptor(j);
     }
   }
   return descriptors;
